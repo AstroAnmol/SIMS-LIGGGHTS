@@ -1,0 +1,8 @@
+*.post
+*.liggghts
+*.static
+*.data
+log.*
+lmp_*
+.vscode
+.DS_Store
