@@ -1,3 +1,4 @@
+log  results/susc1/parallel/post_par3/MDM/log.liggghts
 atom_style	hybrid granular dipole
 boundary	f f f
 newton		off
@@ -11,7 +12,7 @@ variable reg_dim equal 10 #meters
 
 region		reg block -${reg_dim} ${reg_dim} -${reg_dim} ${reg_dim} -${reg_dim} ${reg_dim} units box
 create_box	1 reg
-neighbor	2 bin
+neighbor	5 bin
 neigh_modify	delay 0 every 1
 
 hard_particles	yes
@@ -23,7 +24,7 @@ fix 		m3 all property/global coefficientRestitution peratomtypepair 1 0.06
 fix 		m4 all property/global coefficientFriction peratomtypepair 1 0.4
 fix 		m6 all property/global cohesionEnergyDensity peratomtypepair 1 0.01
 
-fix m7 all property/global magneticSusceptibility peratomtype 4
+fix m7 all property/global magneticSusceptibility peratomtype 1
 
 
 pair_style gran model hertz tangential history #cohesion sjkr
@@ -62,8 +63,8 @@ group           atom_j id 3
 set     atom 3 diameter ${atom_dia}
 
 
-dump  dmp atom_j custom 1 parallel/susc4/post_par3_MDM/dump_$c_*.liggghts id type fx fy fz x y z radius mux muy muz
-# dump  dmp atom_j custom 1 perpendicular/susc4/post_par3_MDM/dump_$c_*.liggghts id type fx fy fz x y z radius mux muy muz
+dump  dmp atom_j custom 1 results/susc1/parallel/post_par3/MDM/dump_$c_*.liggghts id type fx fy fz x y z radius mux muy muz
+log  results/susc1/parallel/post_par3/MDM/log.liggghts append
 
 #fix	1 nve_group nve/sphere
 
