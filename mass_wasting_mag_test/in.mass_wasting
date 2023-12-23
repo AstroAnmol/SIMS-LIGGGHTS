@@ -91,7 +91,7 @@ fix		        integr prtcls nve/sphere update dipole
 
 # Gravity
 variable        grav_value equal 0.144 #m/s^2
-fix             grav all gravity grav_value vector 0.0 0.0 -1.0
+fix             grav all gravity ${grav_value} vector 0.0 0.0 -1.0
 
 # Time step
 timestep        .000001 #seconds (1 microsecond)
@@ -130,7 +130,7 @@ run             500000
 
 # fix magnetic (H field A/m)
 variable        mag_mag equal 1.25e04 #A/m
-fix	            mag all magnetic    0 0 mag_mag
+fix	            mag all magnetic    0 0 ${mag_mag}
 
 # Settle particles again
 run             250000
