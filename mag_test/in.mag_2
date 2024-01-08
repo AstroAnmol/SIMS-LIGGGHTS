@@ -1,4 +1,4 @@
-log  results/susc1/perpendicular/post_par2/MDM/log.liggghts
+# log  results/susc1/perpendicular/post_par2/MDM/log.liggghts
 atom_style	hybrid granular dipole
 boundary	f f f
 newton		off
@@ -45,7 +45,7 @@ set		atom 1 diameter ${atom_dia}
 
 
 #                       x   y   z
-fix	mag all magnetic    1   0   0
+fix	mag all magnetic    0   0   1
 
 # Define loops
 
@@ -60,8 +60,8 @@ group           atom_j id 2
 
 set     atom 2 diameter ${atom_dia}
 
-dump  dmp all custom 1 results/susc1/perpendicular/post_par2/MDM/dump_$c_*.liggghts id type fx fy fz x y z radius mux muy muz
-log  results/susc1/perpendicular/post_par2/MDM/log.liggghts append
+dump  dmp all custom 1 results/susc1/parallel/post_par2/SHA_20/dump_$c_*.liggghts id type fx fy fz x y z radius mux muy muz
+# log  results/susc1/perpendicular/post_par2/MDM/log.liggghts append
 
 #fix	1 nve_group nve/sphere
 

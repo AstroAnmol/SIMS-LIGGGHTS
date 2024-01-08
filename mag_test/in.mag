@@ -1,4 +1,4 @@
-log  results/susc1/parallel/post_par3/MDM/log.liggghts
+log  results/susc1/parallel/post_par3/SHA_20/log.liggghts
 atom_style	hybrid granular dipole
 boundary	f f f
 newton		off
@@ -63,8 +63,8 @@ group           atom_j id 3
 set     atom 3 diameter ${atom_dia}
 
 
-dump  dmp atom_j custom 1 results/susc1/parallel/post_par3/MDM/dump_$c_*.liggghts id type fx fy fz x y z radius mux muy muz
-log  results/susc1/parallel/post_par3/MDM/log.liggghts append
+dump  dmp atom_j custom 1 results/susc1/parallel/post_par3/SHA_20/dump_$c_*.liggghts id type fx fy fz x y z radius mux muy muz
+log  results/susc1/parallel/post_par3/SHA_20/log.liggghts append
 
 #fix	1 nve_group nve/sphere
 
