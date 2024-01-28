@@ -16,12 +16,12 @@ soft_particles  yes
 communicate     single vel yes
 
 # the product of the processors must equal P, the number of processors used when running the file: mpirun -np 4 ...
-processors      7 1 4
+processors      4 2 5
 
 # Dimensions of the box
 variable        dom_length equal 0.280 # 280 mm
 variable        dom_width  equal 0.085 # 085 mm
-variable        dom_height equal 0.085 # 085 mm
+variable        dom_height equal 0.130 # 130 mm
 variable        mid_wall   equal 0.130 # 130 mm
 
 # Declare domain
@@ -38,7 +38,7 @@ neigh_modify    delay 0
 # Material and interaction properties required
 variable        youngsM equal 253e6 # N/m^2
 variable        coeff_rest equal 0.2
-variable        friction_coeff equal 0.6
+variable        friction_coeff equal 0.3
 variable        poissons equal 0.325
 variable        rolling_coeff equal 0.4
 variable        rolling_damp equal 0.4
@@ -55,7 +55,7 @@ fix             m6 all property/global coefficientRollingViscousDamping peratomt
 fix             m7 all property/global coeffRollingStiffness scalar ${rolling_stiff}
 fix             m8 all property/global cohesionEnergyDensity peratomtypepair 2 ${cohesion_energy} ${rolling_damp} ${rolling_damp} ${rolling_damp}
 
-# fix             m9 all property/global magneticSusceptibility peratomtype ${magnetic_susc} ${magnetic_susc}
+fix             m9 all property/global magneticSusceptibility peratomtype ${magnetic_susc} ${magnetic_susc}
 
 ## box walls - define simulation 	
 fix		        wall_z1 all wall/gran model hertz tangential history cohesion sjkr rolling_friction epsd primitive type 2 zplane 0.0        #floor
@@ -75,8 +75,9 @@ pair_coeff	    * *  # the asterisks set force field coeefficients for all atom t
 
 ## Particle insertion
 variable        particle_density equal 8500 # kg/m3
-variable        particle_radius equal 0.00635 # 06.35 mm
-variable        number_of_particles equal 3567
+variable        particle_dia equal 0.00635 # 06.35 mm
+variable        particle_radius equal ${particle_dia}/2 # mm
+variable        number_of_particles equal 3800
 
 # particles and their distribution
 fix	            pts1 all particletemplate/sphere 15485863 atom_type 1 density constant ${particle_density} radius constant ${particle_radius} 
@@ -86,7 +87,7 @@ fix             pdd1 all particledistribution/discrete 15487517 1 pts1 1.0
 region          insertion_b block EDGE ${mid_wall} EDGE EDGE EDGE EDGE 
 group           prtcls region insertion_b
 fix             ins prtcls insert/rate/region seed 123457 distributiontemplate pdd1 nparticles ${number_of_particles} &
-                particlerate 100000 insert_every 1000 overlapcheck yes region insertion_b ntry_mc 10000
+                particlerate 1000 insert_every 1000 overlapcheck yes region insertion_b ntry_mc 10000
 
 
 # region and insertion
@@ -124,7 +125,7 @@ dump            dmp all custom 10000 results/nomag/post_brass_only/dump*.post id
 velocity       all set 0. 0. 0.
 
 # Fill the left half
-run             1000000 upto    #2.0 sec
+run             3000000 upto    #6.0 sec
 
 
 # Stop insertion
@@ -132,15 +133,21 @@ unfix           ins
 
 
 # Settle particles
-run             2500000         #5.0 sec
+run             500000         #1.0 sec
+
+
+# Remove the extra particles
+region          remove_reg block EDGE ${mid_wall} EDGE EDGE 0.072 EDGE
+# group           prtcls_rem region remove_reg
+delete_atoms    region remove_reg
 
 
 # # fix magnetic (H field A/m)
 # variable        mag_mag equal 1.25e04 #A/m
 # fix	            mag all magnetic    0 0 ${mag_mag}
 
-# # Settle particles again
-# run             2500000         #5.0 sec
+# Settle particles again
+# run             500000         #1.0 sec
 
 
 # write restart file to be used for falling on particles
