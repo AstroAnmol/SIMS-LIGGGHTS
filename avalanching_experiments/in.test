@@ -16,7 +16,7 @@ soft_particles  yes
 communicate     single vel yes
 
 # the product of the processors must equal P, the number of processors used when running the file: mpirun -np 4 ...
-processors      4 2 5
+processors      1 1 1
 
 # Dimensions of the box
 variable        dom_length equal 0.280 # 280 mm
@@ -77,14 +77,21 @@ pair_coeff	    * *  # the asterisks set force field coeefficients for all atom t
 variable        particle_density equal 8500 # kg/m3
 variable        particle_dia equal 0.00635 # 06.35 mm
 variable        particle_radius equal ${particle_dia}/2 # mm
-variable        number_of_particles equal 3800
+variable        number_of_particles equal 100
+
+# particle ground
+region          floor block EDGE EDGE EDGE EDGE EDGE 0.007
+lattice         fcc 0.0015
+create_atoms    1 region floor
+group           pts_floor region floor
+set             group pts_floor density ${particle_density} diameter ${particle_dia}
 
 # particles and their distribution
 fix	            pts1 all particletemplate/sphere 15485863 atom_type 1 density constant ${particle_density} radius constant ${particle_radius} 
 fix             pdd1 all particledistribution/discrete 15487517 1 pts1 1.0
 
 # # region and insertion
-region          insertion_b block EDGE ${mid_wall} EDGE EDGE EDGE EDGE 
+region          insertion_b block EDGE ${mid_wall} EDGE EDGE 0.072 EDGE 
 group           prtcls region insertion_b
 fix             ins prtcls insert/rate/region seed 123457 distributiontemplate pdd1 nparticles ${number_of_particles} &
                 particlerate 1000 insert_every 1000 overlapcheck yes region insertion_b ntry_mc 10000
@@ -118,18 +125,19 @@ run             1
 unfix           ctg
 
 # Create imaging information
-dump            dmp all custom 10000 results/nomag/post_brass_only/dump*.post id type x y z vx vy vz radius fx fy fz mass
+dump            dmp all custom 1000 results/nomag/post_brass_only/dump*.post id type x y z vx vy vz radius fx fy fz mass
 
 
 # ensure particles are static 
 velocity       all set 0. 0. 0.
 
 # Fill the left half
-run             3000000 upto    #6.0 sec
-
+run             200000 upto    #4.8 sec
 
 # Stop insertion
 unfix           ins
+
+# Tapping
 
 
 # Settle particles
@@ -156,7 +164,7 @@ write_restart   nomag_restart_filled_brass_only.static
 # pull the stopper
 unfix           wall_center
 
-run             4000000         #8.0 sec
+run             10000         #2.0 sec
 
 # run             30000
 # undump		    dmp
