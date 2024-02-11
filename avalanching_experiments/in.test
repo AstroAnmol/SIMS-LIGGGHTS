@@ -16,7 +16,7 @@ soft_particles  yes
 communicate     single vel yes
 
 # the product of the processors must equal P, the number of processors used when running the file: mpirun -np 4 ...
-processors      1 1 1
+processors      4 2 5
 
 # Dimensions of the box
 variable        dom_length equal 0.280 # 280 mm
@@ -57,6 +57,10 @@ fix             m8 all property/global cohesionEnergyDensity peratomtypepair 2 $
 
 fix             m9 all property/global magneticSusceptibility peratomtype ${magnetic_susc} ${magnetic_susc}
 
+## Pair style
+pair_style      gran model hertz tangential history cohesion sjkr rolling_friction epsd torsionTorque on
+pair_coeff	    * *  # the asterisks set force field coeefficients for all atom types, but then no other args? ASK TOM
+
 ## box walls - define simulation 	
 fix		        wall_z1 all wall/gran model hertz tangential history cohesion sjkr rolling_friction epsd primitive type 2 zplane 0.0        #floor
 fix		        wall_z2 all wall/gran model hertz tangential history cohesion sjkr rolling_friction epsd primitive type 2 zplane ${dom_height}
@@ -68,23 +72,39 @@ fix             wall_y2 all wall/gran model hertz tangential history cohesion sj
 ## wall in centre which is removed to simulate mass wasting
 fix             wall_center all wall/gran model hertz tangential history cohesion sjkr rolling_friction epsd primitive type 2 xplane ${mid_wall}
 
-## Pair style
-pair_style      gran model hertz tangential history cohesion sjkr rolling_friction epsd torsionTorque on
-pair_coeff	    * *  # the asterisks set force field coeefficients for all atom types, but then no other args? ASK TOM
+
+# Gravity
+variable        grav_value equal 9.8 #m/s^2
+fix             grav all gravity ${grav_value} vector 0.0 0.0 -1.0
+
+# Time step
+timestep        .000002 #seconds (2 microsecond)
+
+## Thermo settings
+# thermo style custom says what thermo data we want printed at each thermo timestep - timestep, num atoms, kinetic energy, volume
+thermo_style 	custom step atoms ke vol
+# thermo output every 1000 timesteps
+thermo		    1000
+# LIGGGHTS will ignore last particles and will not normalize against num atoms
+thermo_modify	lost ignore norm no
 
 
 ## Particle insertion
 variable        particle_density equal 8500 # kg/m3
 variable        particle_dia equal 0.00635 # 06.35 mm
 variable        particle_radius equal ${particle_dia}/2 # mm
-variable        number_of_particles equal 100
+variable        2_5_particle_rad equal ${particle_radius}*2.5
+variable        number_of_particles equal 3800
 
 # particle ground
-region          floor block EDGE EDGE EDGE EDGE EDGE 0.007
-lattice         fcc 0.0015
+region          floor block EDGE EDGE EDGE EDGE ${particle_radius} ${2_5_particle_rad}
+lattice         hcp 0.00635
 create_atoms    1 region floor
 group           pts_floor region floor
 set             group pts_floor density ${particle_density} diameter ${particle_dia}
+
+# region          all_other block EDGE EDGE EDGE EDGE 0.004 EDGE
+# delete_atoms    region all_other
 
 # particles and their distribution
 fix	            pts1 all particletemplate/sphere 15485863 atom_type 1 density constant ${particle_density} radius constant ${particle_radius} 
@@ -104,25 +124,11 @@ group		    nve_group region domain
 # apply nve integration to all particles that are inserted as single particles
 fix		        integr prtcls nve/sphere update dipole
 
-# Gravity
-variable        grav_value equal 9.8 #m/s^2
-fix             grav all gravity ${grav_value} vector 0.0 0.0 -1.0
-
-# Time step
-timestep        .000002 #seconds (2 microsecond)
-
-## Thermo settings
-# thermo style custom says what thermo data we want printed at each thermo timestep - timestep, num atoms, kinetic energy, volume
-thermo_style 	custom step atoms ke vol
-# thermo output every 1000 timesteps
-thermo		    1000
-# LIGGGHTS will ignore last particles and will not normalize against num atoms
-thermo_modify	lost ignore norm no
 
 # Check time step and initialize dump file
-fix             ctg all check/timestep/gran 1 0.01 0.01
-run             1
-unfix           ctg
+fix             ctg all check/timestep/gran 1000 0.01 0.01
+# run             1
+# unfix           ctg
 
 # Create imaging information
 dump            dmp all custom 1000 results/nomag/post_brass_only/dump*.post id type x y z vx vy vz radius fx fy fz mass
@@ -131,14 +137,21 @@ dump            dmp all custom 1000 results/nomag/post_brass_only/dump*.post id 
 # ensure particles are static 
 velocity       all set 0. 0. 0.
 
+## freeze
+fix             floor_freeze pts_floor freeze
+
 # Fill the left half
-run             200000 upto    #4.8 sec
+run             2400000 upto    #4.8 sec
 
 # Stop insertion
 unfix           ins
 
 # Tapping
+fix             shear_wiggle pts_floor move wiggle 0 0 5.0E-4 0.0333333
 
+run             500000         #1.0 sec
+
+unfix           shear_wiggle
 
 # Settle particles
 run             500000         #1.0 sec
@@ -164,7 +177,7 @@ write_restart   nomag_restart_filled_brass_only.static
 # pull the stopper
 unfix           wall_center
 
-run             10000         #2.0 sec
+run             1000000         #2.0 sec
 
 # run             30000
 # undump		    dmp
