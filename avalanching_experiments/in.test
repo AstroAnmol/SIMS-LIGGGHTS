@@ -37,13 +37,13 @@ neigh_modify    delay 0
 ### Setup
 # Material and interaction properties required
 variable        youngsM equal 253e6 # N/m^2
-variable        coeff_rest equal 0.2
-variable        friction_coeff equal 0.3
 variable        poissons equal 0.325
+variable        coeff_rest equal 0.06
+variable        friction_coeff equal 0.1
 variable        rolling_coeff equal 0.4
 variable        rolling_damp equal 0.4
 variable        rolling_stiff equal 10
-variable        cohesion_energy equal 10 # J/m^3
+variable        cohesion_energy equal 1 # J/m^2
 variable        magnetic_susc equal 1
 
 fix             m1 all property/global youngsModulus peratomtype ${youngsM} ${youngsM}
@@ -52,8 +52,8 @@ fix             m3 all property/global coefficientRestitution peratomtypepair 2 
 fix             m4 all property/global coefficientFriction peratomtypepair 2 ${friction_coeff} ${friction_coeff} ${friction_coeff} ${friction_coeff}
 fix             m5 all property/global coefficientRollingFriction peratomtypepair  2 ${rolling_coeff} ${rolling_coeff} ${rolling_coeff} ${rolling_coeff}
 fix             m6 all property/global coefficientRollingViscousDamping peratomtypepair  2 ${rolling_damp} ${rolling_damp} ${rolling_damp} ${rolling_damp}
-fix             m7 all property/global coeffRollingStiffness scalar ${rolling_stiff}
-fix             m8 all property/global cohesionEnergyDensity peratomtypepair 2 ${cohesion_energy} ${rolling_damp} ${rolling_damp} ${rolling_damp}
+# fix             m7 all property/global coeffRollingStiffness scalar ${rolling_stiff}
+fix             m8 all property/global cohesionEnergyDensity peratomtypepair 2 ${cohesion_energy} ${cohesion_energy} ${cohesion_energy} ${cohesion_energy}
 
 fix             m9 all property/global magneticSusceptibility peratomtype ${magnetic_susc} ${magnetic_susc}
 
@@ -146,7 +146,7 @@ run             2400000 upto    #4.8 sec
 # Stop insertion
 unfix           ins
 
-# Tapping
+# Tapping 
 fix             shear_wiggle pts_floor move wiggle 0 0 5.0E-4 0.0333333
 
 run             500000         #1.0 sec
