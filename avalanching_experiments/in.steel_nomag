@@ -12,7 +12,7 @@ boundary        f f f
 
 #LIGGGHTS-Public shouuld produce the same answers for any newton flag setting, besides round off
 newton          off
-soft_particles  no
+soft_particles  yes
 communicate     single vel yes
 
 # the product of the processors must equal P, the number of processors used when running the file: mpirun -np 4 ...
@@ -35,11 +35,11 @@ neighbor        ${skin_dist} bin
 neigh_modify    delay 0
 
 ### Setup
-# Material and interaction properties required
-variable        youngsM equal 253e6 # N/m^2
-variable        poissons equal 0.325
-variable        coeff_rest equal 0.4
-variable        friction_coeff equal 0.4
+# Material and interaction properties required (Steel)
+variable        youngsM equal 210e9 # N/m^2
+variable        poissons equal 0.3
+variable        coeff_rest equal 0.06
+variable        friction_coeff equal 0.1
 variable        rolling_coeff equal 0.4
 variable        rolling_damp equal 0.4
 variable        rolling_stiff equal 10
@@ -173,7 +173,7 @@ delete_atoms    region remove_reg
 
 
 # write restart file to be used for falling on particles
-write_restart   restart_files/nomag_restart_filled_brass_only.static
+write_restart   nomag_restart_filled_brass_only.static
 
 # pull the stopper
 unfix           wall_center
