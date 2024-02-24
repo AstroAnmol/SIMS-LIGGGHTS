@@ -12,7 +12,7 @@ boundary        f f f
 
 #LIGGGHTS-Public shouuld produce the same answers for any newton flag setting, besides round off
 newton          off
-soft_particles  no
+hard_particles  yes
 communicate     single vel yes
 
 # the product of the processors must equal P, the number of processors used when running the file: mpirun -np 4 ...
