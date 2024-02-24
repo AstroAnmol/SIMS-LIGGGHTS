@@ -158,7 +158,7 @@ run             500000         #1.0 sec
 
 
 # Remove the extra particles
-variable        fill_height equal 0.072 mm
+variable        fill_height equal 0.072 #mm
 variable        fill_height_f equal ${particle_radius} + ${fill_height}
 region          remove_reg block EDGE ${mid_wall} EDGE EDGE ${fill_height_f} EDGE
 # group           prtcls_rem region remove_reg
