@@ -43,7 +43,7 @@ variable        friction_coeff equal 0.4
 variable        rolling_coeff equal 0.4
 variable        rolling_damp equal 0.4
 # variable        rolling_stiff equal 10
-variable        cohesion_energy equal 0.1 # J/m^2
+variable        cohesion_energy equal 0.001 # J/m^2
 variable        magnetic_susc equal 1
 
 fix             m1 all property/global youngsModulus peratomtype ${youngsM} ${youngsM}
@@ -97,7 +97,7 @@ variable        2_5_particle_rad equal ${particle_radius}*2.5
 variable        number_of_particles equal 3800
 
 variable        fill_height equal 0.072 #mm
-variable        floor_height equal 0.01
+variable        floor_height equal 0.00518485
 variable        fill_height_f equal ${floor_height}+${fill_height}
 
 # particle ground
