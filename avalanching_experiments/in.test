@@ -96,6 +96,10 @@ variable        particle_radius equal ${particle_dia}/2 # mm
 variable        2_5_particle_rad equal ${particle_radius}*2.5
 variable        number_of_particles equal 3800
 
+variable        fill_height equal 0.072 #mm
+variable        floor_height equal 0.01
+variable        fill_height_f equal ${floor_height}+${fill_height}
+
 # particle ground
 region          floor block EDGE EDGE EDGE EDGE ${particle_radius} ${2_5_particle_rad}
 lattice         hcp 0.00635
@@ -111,7 +115,7 @@ fix	            pts1 all particletemplate/sphere 15485863 atom_type 1 density co
 fix             pdd1 all particledistribution/discrete 15487517 1 pts1 1.0
 
 # # region and insertion
-region          insertion_b block EDGE ${mid_wall} EDGE EDGE 0.072 EDGE 
+region          insertion_b block EDGE ${mid_wall} EDGE EDGE ${fill_height_f} EDGE 
 group           prtcls region insertion_b
 fix             ins prtcls insert/rate/region seed 123457 distributiontemplate pdd1 nparticles ${number_of_particles} &
                 particlerate 1000 insert_every 1000 overlapcheck yes region insertion_b ntry_mc 10000
@@ -158,9 +162,6 @@ run             500000         #1.0 sec
 
 
 # Remove the extra particles
-variable        fill_height equal 0.072 #mm
-variable        floor_height equal 0.01
-variable        fill_height_f equal ${floor_height}+${fill_height}
 region          remove_reg block EDGE ${mid_wall} EDGE EDGE ${fill_height_f} EDGE
 # group           prtcls_rem region remove_reg
 delete_atoms    region remove_reg
