@@ -43,7 +43,7 @@ variable        friction_coeff equal 0.4
 variable        rolling_coeff equal 0.4
 variable        rolling_damp equal 0.4
 # variable        rolling_stiff equal 10
-variable        cohesion_energy equal 1 # J/m^2
+variable        cohesion_energy equal 0.1 # J/m^2
 variable        magnetic_susc equal 1
 
 fix             m1 all property/global youngsModulus peratomtype ${youngsM} ${youngsM}
@@ -159,7 +159,8 @@ run             500000         #1.0 sec
 
 # Remove the extra particles
 variable        fill_height equal 0.072 #mm
-variable        fill_height_f equal ${particle_radius} + ${fill_height}
+variable        floor_height equal 0.0053
+variable        fill_height_f equal ${floor_height}+${fill_height}
 region          remove_reg block EDGE ${mid_wall} EDGE EDGE ${fill_height_f} EDGE
 # group           prtcls_rem region remove_reg
 delete_atoms    region remove_reg
