@@ -40,8 +40,8 @@ variable        youngsM equal 110e9 # N/m^2
 variable        poissons equal 0.375
 variable        coeff_rest equal 0.8
 variable        friction_coeff equal 0.4
-variable        rolling_coeff equal 0.4
-variable        rolling_damp equal 0.4
+variable        rolling_coeff equal 0.2
+variable        rolling_damp equal 0.2
 # variable        rolling_stiff equal 10
 variable        cohesion_energy equal 0.001 # J/m^2
 variable        magnetic_susc equal 1
