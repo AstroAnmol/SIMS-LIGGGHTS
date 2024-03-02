@@ -16,7 +16,7 @@ hard_particles  yes
 communicate     single vel yes
 
 # the product of the processors must equal P, the number of processors used when running the file: mpirun -np 4 ...
-processors      4 4 5
+processors      4 2 5
 
 # Dimensions of the box
 variable        dom_length equal 0.280 # 280 mm
@@ -29,7 +29,7 @@ region          domain block 0 ${dom_length} 0 ${dom_width} 0 ${dom_height} unit
 create_box      2 domain
 
 # Neighbor skin style - atom pairs within a neighbor cutoff distance = force cutoff + skin distance, styele = bin
-variable        skin_dist equal 0.020 #meters
+variable        skin_dist equal 0.0127 #meters
 neighbor        ${skin_dist} bin
 # neigh_modify delay 0, this is the default, rebuild neighbor list every timestep
 neigh_modify    delay 0
@@ -83,8 +83,8 @@ timestep        0.5e-6 #seconds (0.5 microsecond)
 ## Thermo settings
 # thermo style custom says what thermo data we want printed at each thermo timestep - timestep, num atoms, kinetic energy, volume
 thermo_style 	custom step atoms ke vol
-# thermo output every 1000 timesteps
-thermo		    1000
+# thermo output every 4000 timesteps
+thermo		    4000
 # LIGGGHTS will ignore last particles and will not normalize against num atoms
 thermo_modify	lost ignore norm no
 
@@ -118,7 +118,7 @@ fix             pdd1 all particledistribution/discrete 15487517 1 pts1 1.0
 region          insertion_b block EDGE ${mid_wall} EDGE EDGE ${fill_height_f} EDGE 
 group           prtcls region insertion_b
 fix             ins prtcls insert/rate/region seed 123457 distributiontemplate pdd1 nparticles ${number_of_particles} &
-                particlerate 1000 insert_every 1000 overlapcheck yes region insertion_b ntry_mc 10000
+                particlerate 2000 insert_every 1000 overlapcheck yes region insertion_b ntry_mc 10000
 
 
 # region and insertion
@@ -135,7 +135,7 @@ fix             ctg all check/timestep/gran 1000 0.01 0.01
 # unfix           ctg
 
 # Create imaging information
-dump            dmp all custom 1000 results/dump*.post id type x y z vx vy vz radius fx fy fz mass
+dump            dmp all custom 4000 results/dump*.post id type x y z vx vy vz radius fx fy fz mass
 
 
 # ensure particles are static 
@@ -145,7 +145,7 @@ velocity       all set 0. 0. 0.
 fix             floor_freeze pts_floor freeze
 
 # Fill the left half
-run             2400000 upto    #4.8 sec
+run             6000000 upto    #3.0 sec
 
 # Stop insertion
 unfix           ins
@@ -153,12 +153,12 @@ unfix           ins
 # Tapping 
 fix             shear_wiggle pts_floor move wiggle 0 0 5.0E-4 0.0333333
 
-run             500000         #1.0 sec
+run             2000000         #1.0 sec
 
 unfix           shear_wiggle
 
 # Settle particles
-run             500000         #1.0 sec
+run             2000000         #1.0 sec
 
 
 # Remove the extra particles
@@ -172,7 +172,7 @@ delete_atoms    region remove_reg
 # fix	            mag all magnetic    0 0 ${mag_mag}
 
 # # Settle particles again
-# run             500000         #1.0 sec
+# run             2000000         #1.0 sec
 
 
 # write restart file to be used for falling on particles
@@ -181,7 +181,7 @@ write_restart   restart_filled_brass_only.static
 # pull the stopper
 unfix           wall_center
 
-run             1000000         #2.0 sec
+run             6000000         #3 sec
 
 # run             30000
 # undump		    dmp
