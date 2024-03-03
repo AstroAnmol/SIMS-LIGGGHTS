@@ -16,7 +16,7 @@ hard_particles  yes
 communicate     single vel yes
 
 # the product of the processors must equal P, the number of processors used when running the file: mpirun -np 4 ...
-processors      4 2 5
+processors      6 3 6
 
 # Dimensions of the box
 variable        dom_length equal 0.280 # 280 mm
@@ -167,12 +167,12 @@ region          remove_reg block EDGE ${mid_wall} EDGE EDGE ${fill_height_f} EDG
 delete_atoms    region remove_reg
 
 
-# # fix magnetic (H field A/m)
-# variable        mag_mag equal 4*7957.7471545947673925 #A/m (0.01 T B)
-# fix	            mag all magnetic    0 0 ${mag_mag}
+# fix magnetic (H field A/m)
+variable        mag_mag equal 4*7957.7471545947673925 #A/m (0.04 T B)
+fix	            mag all magnetic    0 0 ${mag_mag}
 
-# # Settle particles again
-# run             2000000         #1.0 sec
+# Settle particles again
+run             2000000         #1.0 sec
 
 
 # write restart file to be used for falling on particles
