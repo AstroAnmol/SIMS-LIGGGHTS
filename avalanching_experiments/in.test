@@ -7,7 +7,7 @@ units           si
 atom_style      hybrid granular dipole
 atom_modify     sort 10000 0
 
-# periodic y boundaries, fixed x and z boundaries
+# boundaries
 boundary        f f f
 
 #LIGGGHTS-Public shouuld produce the same answers for any newton flag setting, besides round off
@@ -16,7 +16,7 @@ hard_particles  yes
 communicate     single vel yes
 
 # the product of the processors must equal P, the number of processors used when running the file: mpirun -np 4 ...
-processors      4 2 5
+processors      4 4 5
 
 # Dimensions of the box
 variable        dom_length equal 0.280 # 280 mm
@@ -29,7 +29,7 @@ region          domain block 0 ${dom_length} 0 ${dom_width} 0 ${dom_height} unit
 create_box      2 domain
 
 # Neighbor skin style - atom pairs within a neighbor cutoff distance = force cutoff + skin distance, styele = bin
-variable        skin_dist equal 0.005 #meters
+variable        skin_dist equal 0.020 #meters
 neighbor        ${skin_dist} bin
 # neigh_modify delay 0, this is the default, rebuild neighbor list every timestep
 neigh_modify    delay 0
@@ -40,8 +40,8 @@ variable        youngsM equal 110e9 # N/m^2
 variable        poissons equal 0.375
 variable        coeff_rest equal 0.8
 variable        friction_coeff equal 0.4
-variable        rolling_coeff equal 0.2
-variable        rolling_damp equal 0.2
+variable        rolling_coeff equal 0.1
+variable        rolling_damp equal 0.1
 # variable        rolling_stiff equal 10
 variable        cohesion_energy equal 0.001 # J/m^2
 variable        magnetic_susc equal 1
@@ -78,7 +78,7 @@ variable        grav_value equal 9.8 #m/s^2
 fix             grav all gravity ${grav_value} vector 0.0 0.0 -1.0
 
 # Time step
-timestep        .000002 #seconds (2 microsecond)
+timestep        0.5e-6 #seconds (0.5 microsecond)
 
 ## Thermo settings
 # thermo style custom says what thermo data we want printed at each thermo timestep - timestep, num atoms, kinetic energy, volume
@@ -135,7 +135,7 @@ fix             ctg all check/timestep/gran 1000 0.01 0.01
 # unfix           ctg
 
 # Create imaging information
-dump            dmp all custom 1000 results/nomag/post_brass_only/dump*.post id type x y z vx vy vz radius fx fy fz mass
+dump            dmp all custom 1000 results/dump*.post id type x y z vx vy vz radius fx fy fz mass
 
 
 # ensure particles are static 
@@ -168,15 +168,15 @@ delete_atoms    region remove_reg
 
 
 # # fix magnetic (H field A/m)
-# variable        mag_mag equal 1.25e04 #A/m
+# variable        mag_mag equal 4*7957.7471545947673925 #A/m (0.01 T B)
 # fix	            mag all magnetic    0 0 ${mag_mag}
 
-# Settle particles again
+# # Settle particles again
 # run             500000         #1.0 sec
 
 
 # write restart file to be used for falling on particles
-write_restart   restart_files/nomag_restart_filled_brass_only.static
+write_restart   restart_filled_brass_only.static
 
 # pull the stopper
 unfix           wall_center
