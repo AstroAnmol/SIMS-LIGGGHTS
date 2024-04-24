@@ -1,0 +1,112 @@
+### Restarting avalanching experiment in uniform magnetic field
+
+### Initialization
+# Preliminaries
+units           si
+atom_style      hybrid granular dipole
+atom_modify     sort 10000 0
+
+# boundaries
+boundary        f f s
+
+#LIGGGHTS-Public shouuld produce the same answers for any newton flag setting, besides round off
+newton          off
+hard_particles  yes
+communicate     single vel yes
+
+# load the prepared granular assembly
+# change the last field to point to the desired assembly
+read_restart	restart_filled_steel_trial.static
+
+# Dimensions of the box
+variable        dom_length equal 0.280 # 280 mm
+variable        dom_width  equal 0.085 # 085 mm
+variable        dom_height equal 0.085 # 130 mm
+variable        mid_wall   equal 0.130 # 130 mm
+
+# Declare domain
+region          domain block 0 ${dom_length} 0 ${dom_width} 0 ${dom_height} units box
+create_box      2 domain
+
+# Neighbor skin style - atom pairs within a neighbor cutoff distance = force cutoff + skin distance, styele = bin
+variable        skin_dist equal 0.0127 #meters
+neighbor        ${skin_dist} bin
+# neigh_modify delay 0, this is the default, rebuild neighbor list every timestep
+neigh_modify    delay 0
+
+
+### Setup
+# Material and interaction properties required
+variable        youngsM equal 210e9 # N/m^2
+variable        poissons equal 0.30
+variable        coeff_rest equal 0.85
+variable        friction_coeff equal 0.5
+variable        rolling_coeff equal 0.05
+variable        rolling_damp equal 0.05
+# variable        rolling_stiff equal 10
+variable        cohesion_energy equal 0.0001 # J/m^2
+variable        magnetic_susc equal 1
+
+fix             m1 all property/global youngsModulus peratomtype ${youngsM} ${youngsM}
+fix             m2 all property/global poissonsRatio peratomtype ${poissons} ${poissons}
+fix             m3 all property/global coefficientRestitution peratomtypepair 2 ${coeff_rest} ${coeff_rest} ${coeff_rest} ${coeff_rest}
+fix             m4 all property/global coefficientFriction peratomtypepair 2 ${friction_coeff} ${friction_coeff} ${friction_coeff} ${friction_coeff}
+fix             m5 all property/global coefficientRollingFriction peratomtypepair  2 ${rolling_coeff} ${rolling_coeff} ${rolling_coeff} ${rolling_coeff}
+fix             m6 all property/global coefficientRollingViscousDamping peratomtypepair  2 ${rolling_damp} ${rolling_damp} ${rolling_damp} ${rolling_damp}
+# fix             m7 all property/global coeffRollingStiffness scalar ${rolling_stiff}
+fix             m8 all property/global cohesionEnergyDensity peratomtypepair 2 ${cohesion_energy} ${cohesion_energy} ${cohesion_energy} ${cohesion_energy}
+
+fix             m9 all property/global magneticSusceptibility peratomtype ${magnetic_susc} ${magnetic_susc}
+
+## Pair style
+pair_style      gran model hertz tangential history cohesion sjkr rolling_friction epsd torsionTorque on
+pair_coeff	    * *  # the asterisks set force field coeefficients for all atom types, but then no other args? ASK TOM
+
+## box walls - define simulation 	
+fix		        wall_z1 all wall/gran model hertz tangential history cohesion sjkr rolling_friction epsd primitive type 2 zplane 0.0        #floor
+fix		        wall_z2 all wall/gran model hertz tangential history cohesion sjkr rolling_friction epsd primitive type 2 zplane ${dom_height}
+fix             wall_x1 all wall/gran model hertz tangential history cohesion sjkr rolling_friction epsd primitive type 2 xplane 0.0            
+fix             wall_x2 all wall/gran model hertz tangential history cohesion sjkr rolling_friction epsd primitive type 2 xplane ${dom_length}
+fix             wall_y1 all wall/gran model hertz tangential history cohesion sjkr rolling_friction epsd primitive type 2 yplane 0.0            
+fix             wall_y2 all wall/gran model hertz tangential history cohesion sjkr rolling_friction epsd primitive type 2 yplane ${dom_width}
+
+## wall in centre which is removed to simulate mass wasting
+fix             wall_center all wall/gran model hertz tangential history cohesion sjkr rolling_friction epsd primitive type 2 xplane ${mid_wall}
+
+
+# Gravity
+variable        grav_value equal 9.8 #m/s^2
+fix             grav all gravity ${grav_value} vector 0.0 0.0 -1.0
+
+# Time step
+timestep        0.2e-6 #seconds (0.2 microsecond)
+
+## Thermo settings
+# thermo style custom says what thermo data we want printed at each thermo timestep - timestep, num atoms, kinetic energy, volume
+thermo_style 	custom step atoms ke vol
+# thermo output every 4000 timesteps
+thermo		    4000
+# LIGGGHTS will ignore last particles and will not normalize against num atoms
+thermo_modify	lost ignore norm no
+
+### Detailed settings
+# apply nve integration to all particles that are inserted as single particles
+fix		        integr prtcls nve/sphere update dipole
+
+
+# Check time step and initialize dump file
+fix             ctg all check/timestep/gran 1000 0.01 0.01
+# run             1
+# unfix           ctg
+
+# Create imaging information
+dump            dmp all custom 4000 results_highdamp_trial_res85/dump*.post id type x y z vx vy vz radius fx fy fz mass
+
+
+# ensure particles are static 
+velocity       all set 0. 0. 0.
+
+# pull the stopper
+unfix           wall_center
+
+run             7500000         #1.5 sec
