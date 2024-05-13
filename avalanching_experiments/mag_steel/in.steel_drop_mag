@@ -29,7 +29,7 @@ region          domain block 0 ${dom_length} 0 ${dom_width} 0 ${dom_height} unit
 # create_box      2 domain
 
 # Neighbor skin style - atom pairs within a neighbor cutoff distance = force cutoff + skin distance, styele = bin
-variable        skin_dist equal 0.0127 #meters
+variable        skin_dist equal 0.01905 #meters 3 diameters, overall 4 diameters
 neighbor        ${skin_dist} bin
 # neigh_modify delay 0, this is the default, rebuild neighbor list every timestep
 neigh_modify    delay 0
