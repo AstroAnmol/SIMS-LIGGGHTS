@@ -106,6 +106,13 @@ dump            dmp all custom 4000 results_drop_trial/dump*.post id type x y z 
 # ensure particles are static 
 velocity       all set 0. 0. 0.
 
+
+# fix magnetic (H field A/m)
+variable        mag_mag equal 4*7957.7471545947673925 #A/m (0.04 T B)
+fix	            mag all magnetic    0 0 ${mag_mag}
+
+run             5000000         #1 sec
+
 # pull the stopper
 unfix           wall_center
 
