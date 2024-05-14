@@ -111,9 +111,16 @@ velocity       all set 0. 0. 0.
 variable        mag_mag equal 4*7957.7471545947673925 #A/m (0.04 T B)
 fix	            mag all magnetic    0 0 ${mag_mag}
 
-run             5000000         #1 sec
+run             2500000         #0.5 sec
 
 # pull the stopper
 unfix           wall_center
 
-run             7500000         #1.5 sec
+run             2500000         #0.5 sec
+write_restart   continuedrop.restart
+
+run             2500000         #0.5 sec
+write_restart   continuedrop.restart
+
+run             2500000         #0.5 sec
+write_restart   continuedrop.restart
