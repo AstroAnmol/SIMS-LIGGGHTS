@@ -9,6 +9,9 @@ atom_modify     sort 10000 0
 # boundaries
 boundary        f f s
 
+#processors
+processors      5 3 6
+
 #LIGGGHTS-Public shouuld produce the same answers for any newton flag setting, besides round off
 newton          off
 hard_particles  yes
@@ -95,7 +98,7 @@ fix		        integr prtcls nve/sphere update dipole
 
 
 # Check time step and initialize dump file
-fix             ctg all check/timestep/gran 1000 0.01 0.01
+fix             ctg all check/timestep/gran 4000 0.01 0.01
 # run             1
 # unfix           ctg
 
