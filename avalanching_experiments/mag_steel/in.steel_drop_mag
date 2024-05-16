@@ -48,7 +48,7 @@ variable        rolling_coeff equal 0.02
 variable        rolling_damp equal 0.02
 # variable        rolling_stiff equal 10
 variable        cohesion_energy equal 0.00002 # J/m^2
-variable        magnetic_susc equal 1
+variable        magnetic_susc equal 4
 
 fix             m1 all property/global youngsModulus peratomtype ${youngsM} ${youngsM}
 fix             m2 all property/global poissonsRatio peratomtype ${poissons} ${poissons}
